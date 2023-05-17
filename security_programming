@@ -1,0 +1,314 @@
+import javax.crypto.*;
+import java.io.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static javax.crypto.Cipher.*;
+
+
+class District implements Runnable {
+
+
+    private final Lock lock = new ReentrantLock();
+
+    ArrayList<String> monday = new ArrayList<>();
+    ArrayList<String> tuesday = new ArrayList<>();
+    ArrayList<String> wednesdays = new ArrayList<>();
+    ArrayList<String> thursdays = new ArrayList<>();
+    ArrayList<String> friday = new ArrayList<>();
+    ArrayList<String> saturday = new ArrayList<>();
+    ArrayList<String> sunday = new ArrayList<>();
+
+    byte[] decrypted_text;
+    Cipher cipher;
+
+    private byte[] name;
+
+    SecretKey secretKey;
+
+    public District(byte[] name, HashMap<String, int[]> stringHashMap, SecretKey secretKey, Cipher cipher) {
+        this.name = name;
+        this.secretKey=secretKey;
+        this.cipher=cipher;
+    }
+
+    public void run() {
+        int districtCount = 0;
+        int population = 0;
+        int day = 0;
+        // int avgPerDay = population/howMany(dayOf/date);
+
+        lock.lock();
+
+        try {
+
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            decrypted_text = cipher.doFinal(name);
+
+            String name_decrypted= new String(decrypted_text)  ;
+
+            File file = new File(name_decrypted + ".csv");
+            FileReader reader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            String line;
+            System.out.println("Parsing " + file.getName() + "...");
+
+
+            while ((line = bufferedReader.readLine()) != null) {
+                day++;
+
+                String[] wordlistOfOneLine = line.split(",");
+
+                String dayOf = wordlistOfOneLine[1];
+                String dailyNumberOfPassengers = wordlistOfOneLine[3];
+                String date = wordlistOfOneLine[0];
+
+                if (dayOf.equals("Day of the Week") || dailyNumberOfPassengers.equals("Number of Passengers")) {
+                    continue;
+                } else {
+
+                    population = Integer.parseInt(dailyNumberOfPassengers);
+                    population += population;
+                    districtCount++;
+                    // int dailyAverage=population/districtCount;
+                    Main.districtPassengerCount.put(dayOf, new int[]{population, howMany(dayOf, date), population/howMany(dayOf,date)});
+                }
+            }
+
+            bufferedReader.close();
+            reader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            throw new RuntimeException(e);
+        } catch (BadPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } finally {
+        lock.unlock();
+    }
+}
+
+    private synchronized int howMany(String dayOf, String date) {
+        int howMany = 1;
+
+        if (dayOf.equals("Monday")) {
+            if(monday.size()==0){
+                monday.add(date);
+                return monday.size();}
+            else  {
+                for(int i=0; i<monday.size();i++){
+                    if(monday.get(i).equals(date) ){
+                        //listede varsa
+                        return monday.size();
+                    }
+                    else {
+                        monday.add(date);
+                        return monday.size();
+                    }
+                }
+
+            }
+        }
+        else if (dayOf.equals("Tuesday")) {
+            if(tuesday.size()==0){
+                tuesday.add(date);
+                return tuesday.size();}
+            else  {
+                for(int i=0; i<tuesday.size();i++){
+                    if(tuesday.get(i).equals(date) ){
+                        //listede varsa
+                        return tuesday.size();
+                    }
+                    else {
+                        tuesday.add(date);
+                        return tuesday.size();
+                    }
+                }
+
+            }
+        }
+        else if (dayOf.equals("Wednesday")) {
+            if(wednesdays.size()==0){
+                wednesdays.add(date);
+                return wednesdays.size();}
+            else  {
+                for(int i=0; i<wednesdays.size();i++){
+                    if(wednesdays.get(i).equals(date) ){
+                        //listede varsa
+                        return wednesdays.size();
+                    }
+                    else {
+                        wednesdays.add(date);
+                        return wednesdays.size();
+                    }
+                }
+            }
+        }
+        else if (dayOf.equals("Thursday")) {
+            if(thursdays.size()==0){
+                thursdays.add(date);
+                return 1;}
+            else  {
+                for(int i=0; i<thursdays.size();i++){
+                    if(thursdays.get(i).equals(date) ){
+                        //listede varsa
+                        return thursdays.size();
+                    }
+                    else {
+                        thursdays.add(date);
+                        return thursdays.size();
+                    }
+                }
+
+            }
+        }
+        else if (dayOf.equals("Friday")) {
+            if(friday.size()==0){
+                friday.add(date);
+                return 1;}
+            else  {
+                for(int i=0; i<friday.size();i++){
+                    if(friday.get(i).equals(date) ){
+                        //listede varsa
+                        return friday.size();
+                    }
+                    else {
+                        friday.add(date);
+                        return friday.size();
+                    }
+                }
+
+            }
+        }
+        else if (dayOf.equals("Saturday")) {
+            if(saturday.size()==0){
+                saturday.add(date);
+                return 1;}
+            else  {
+                for(int i = 0; i< saturday.size(); i++){
+                    if(saturday.get(i).equals(date) ){
+                        //listede varsa
+                        return saturday.size();
+                    }
+                    else {
+                        saturday.add(date);
+                        return saturday.size();
+                    }
+                }
+
+            }
+        }
+        else if (dayOf.equals("Sunday")) {
+            if(sunday.size()==0){
+                sunday.add(date);
+                return 1;}
+            else  {
+                for(int i = 0; i< sunday.size(); i++){
+                    if(sunday.get(i).equals(date) ){
+                        //listede varsa
+                        return sunday.size();
+                    }
+                    else {
+                        sunday.add(date);
+                        return sunday.size();
+                    }
+                }
+
+            }
+        }
+        return howMany;}
+}
+
+
+
+class Main {
+
+    public static String printBytes(byte[] data) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : data) {
+            sb.append(String.format("%02X:", b));
+        }
+        return sb.toString();
+    }
+
+
+    static  HashMap<String, int[]>  districtPassengerCount = new HashMap<>();
+    public static void main(String[] args) {
+
+        String msg = "This is SE375 SYSTEM PROGRAMMING.";
+        byte[] plain_text;
+        byte[] encrypted_name;
+
+        Cipher cipher;
+
+        try{
+        plain_text = msg.getBytes("UTF-8");
+        System.out.println("Original data:" + msg);
+        System.out.println(printBytes(plain_text));
+
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        SecureRandom secureRandom = new SecureRandom();
+        keyGen.init(128, secureRandom);
+
+
+            SecretKey secretKey = keyGen.generateKey();
+
+
+
+    String[] districts = {"Balcova", "Bornova", "Urla", "Gaziemir", "Karabaglar","Karsiyaka","Konak","Seferihisar"};
+        Thread[] threads = new Thread[districts.length];
+
+        int i =0;
+        for (String district : districts) {
+
+
+
+
+            cipher = getInstance("AES");
+
+            cipher.init(ENCRYPT_MODE, secretKey);
+
+            encrypted_name = cipher.doFinal(district.getBytes());
+            threads[i] = new Thread(new District(encrypted_name, districtPassengerCount, secretKey, cipher));
+            threads[i].start();
+            i++;
+        }
+        for (Thread thread : threads) {
+            try {
+                if (thread!=null){
+                thread.join();}
+                else{
+                    thread.interrupt();}
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Threads are complete. The results:");
+        System.out.println("Day of the Week            Total Passengers       Number of days           Average per day");
+        for (String date : districtPassengerCount.keySet()) {
+            int[] counts = districtPassengerCount.get(date);
+            System.out.println( date + ":               " + counts[0] + " passengers,               " + counts[1] +"          "+ counts[2]);
+        }
+    } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalBlockSizeException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (BadPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+    }}
